@@ -1,1 +1,103 @@
 
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML文件预览器 - wddjcs/78</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; }
+        .container { max-width: 1000px; margin: auto; }
+        .header { margin-bottom: 20px; }
+        .preview-area { border: 2px solid #ddd; border-radius: 5px; min-height: 500px; width: 100%; }
+        iframe { width: 100%; height: 100%; border: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📁 仓库 HTML 文件预览器</h1>
+            <p>仓库：<a href="https://github.com/wddjcs/78" target="_blank">wddjcs/78</a></p>
+            <label for="fileSelector">选择要预览的文件：</label>
+            <select id="fileSelector">
+                <option value="">-- 请选择 --</option>
+                <!-- 选项将通过JavaScript动态添加 -->
+            </select>
+            <button onclick="refreshFileList()">🔄 刷新文件列表</button>
+        </div>
+        <div class="preview-area">
+            <iframe id="previewFrame" src="" title="HTML预览"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // 你的GitHub仓库信息
+        const repoOwner = 'wddjcs';
+        const repoName = '78';
+        const branch = 'main';
+        const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/`;
+
+        // 获取仓库根目录下的文件列表
+        async function fetchFileList() {
+            const selector = document.getElementById('fileSelector');
+            selector.innerHTML = '<option value="">-- 请选择 --</option>'; // 清空列表
+            selector.disabled = true;
+
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error(`HTTP错误: ${response.status}`);
+                const contents = await response.json();
+
+                // 过滤出.html文件
+                const htmlFiles = contents.filter(item => item.name.endsWith('.html'));
+                
+                if (htmlFiles.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = '⚠️ 未在根目录找到.html文件';
+                    selector.appendChild(option);
+                    return;
+                }
+
+                htmlFiles.forEach(file => {
+                    const option = document.createElement('option');
+                    option.value = file.path; // 文件路径，如 "1.html"
+                    option.textContent = file.name;
+                    selector.appendChild(option);
+                });
+
+                selector.disabled = false;
+                // 默认选择第一个文件
+                if (htmlFiles.length > 0) {
+                    selector.value = htmlFiles[0].path;
+                    loadPreview(htmlFiles[0].path);
+                }
+
+            } catch (error) {
+                console.error('获取文件列表失败:', error);
+                const option = document.createElement('option');
+                option.textContent = '❌ 无法加载文件列表';
+                selector.appendChild(option);
+            }
+        }
+
+        // 加载选中的HTML文件进行预览
+        function loadPreview(filePath) {
+            if (!filePath) return;
+            // 使用GitHub Pages的raw地址来直接访问文件内容
+            const rawUrl = `https://${repoOwner}.github.io/${repoName}/${filePath}`;
+            document.getElementById('previewFrame').src = rawUrl;
+        }
+
+        // 刷新文件列表
+        function refreshFileList() {
+            fetchFileList();
+        }
+
+        // 页面加载时初始化，以及当下拉菜单选择变化时
+        window.onload = fetchFileList;
+        document.getElementById('fileSelector').addEventListener('change', function() {
+            loadPreview(this.value);
+        });
+    </script>
+</body>
+</html>

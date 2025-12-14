@@ -1,0 +1,1496 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>高玩工具箱</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- GSAP 动画库 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#000000',
+                        secondary: '#ffffff',
+                        gray: {
+                            100: '#f7f7f7',
+                            200: '#e5e5e5',
+                            300: '#d4d4d4',
+                            400: '#a3a3a3',
+                            500: '#737373',
+                            600: '#525252',
+                            700: '#404040',
+                            800: '#262626',
+                            900: '#171717',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            }
+            .text-shadow-lg {
+                text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+            }
+            .bg-gradient-bw {
+                background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 50%, #e0e0e0 100%);
+            }
+            .border-dashed-custom {
+                background-image: linear-gradient(to right, #000 50%, transparent 50%);
+                background-size: 20px 1px;
+                background-repeat: repeat-x;
+            }
+        }
+        
+        /* 自定义动画 */
+        @keyframes loadingDots {
+            0%, 100% { content: '.'; }
+            33% { content: '..'; }
+            66% { content: '...'; }
+        }
+        
+        .loading-dots::after {
+            content: '.';
+            animation: loadingDots 1.5s infinite;
+        }
+        
+        /* 数字增长动画 */
+        @keyframes numberGrow {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .number-animate {
+            animation: numberGrow 0.8s ease-out forwards;
+        }
+        
+        /* 特殊数字动画 */
+        @keyframes specialNumber {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .special-number {
+            animation: specialNumber 1s ease-out forwards;
+        }
+        
+        /* 菜单动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .menu-fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        /* 闪光弹效果 */
+        .fullscreen-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            transition: none !important; /* 去掉缓慢变色 */
+        }
+        
+        .countdown-text {
+            font-size: 10rem;
+            font-weight: bold;
+            color: #000;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        
+        .mode-selection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9998;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        .mode-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .mode-button {
+            padding: 1.5rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .mode-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+        }
+        
+        .back-button {
+            background: #333;
+            color: white;
+            margin-top: 2rem;
+        }
+        
+        .warning-text {
+            color: #ff6b6b;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            max-width: 500px;
+            line-height: 1.5;
+        }
+        
+        /* 菜单按钮为黑色 */
+        .menu-btn-black {
+            color: #000000 !important;
+        }
+        
+        .menu-btn-black:hover {
+            color: #333333 !important;
+        }
+        
+        /* 反应测试样式 - 修复版本 */
+        .reaction-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9996;
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        
+        .reaction-start-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 2rem 4rem;
+            font-size: 2rem;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            z-index: 2;
+        }
+        
+        .reaction-game-area {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .reaction-half {
+            width: 50%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            cursor: pointer;
+        }
+        
+        .reaction-left {
+            left: 0;
+        }
+        
+        .reaction-right {
+            right: 0;
+        }
+        
+        .reaction-divider {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: white;
+            z-index: 10;
+        }
+        
+        .reaction-result {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: none;
+            z-index: 11;
+        }
+        
+        /* 弹窗样式 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .modal-input {
+            width: 100%;
+            padding: 0.75rem;
+            margin: 1rem 0;
+            border: 1px solid #d4d4d4;
+            border-radius: 4px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .modal-btn-confirm {
+            background: black;
+            color: white;
+        }
+        
+        .modal-btn-cancel {
+            background: #f0f0f0;
+            color: black;
+        }
+        
+        /* 主页样式 */
+        .home-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        
+        .home-content {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .home-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: black;
+            margin-bottom: 1rem;
+        }
+        
+        .home-subtitle {
+            font-size: 1.2rem;
+            color: black;
+            margin-bottom: 2rem;
+            opacity: 0.8;
+        }
+        
+        .treasure-box {
+            font-size: 4rem;
+            color: black;
+            margin: 2rem 0;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        
+        .treasure-box:hover {
+            transform: scale(1.1);
+        }
+        
+        .function-icons {
+            display: none;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            max-width: 500px;
+            margin-top: 2rem;
+        }
+        
+        .function-icon {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .function-icon:hover {
+            background: black;
+            color: white;
+            transform: translateY(-5px);
+        }
+        
+        .function-icon i {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .back-home-btn {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            padding: 0.5rem 1rem;
+            background: black;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 100;
+        }
+        
+        /* 隐藏类 */
+        .hidden {
+            display: none !important;
+        }
+        
+        /* 功能页面容器样式 - 确保居中 */
+        .function-page-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- 主页 -->
+    <div id="homeContainer" class="home-container">
+        <div class="home-content">
+            <div id="homeGreeting" class="home-title">早上好，欢迎来到高玩工具箱</div>
+            <div class="home-subtitle">海！点击下面的箱子看看百宝箱吧！</div>
+            <div id="treasureBox" class="treasure-box">
+                <i class="fa fa-archive"></i>
+            </div>
+            <div id="functionIcons" class="function-icons">
+                <div class="function-icon" id="lengthIcon">
+                    <i class="fa fa-ruler"></i>
+                    <span>78长度查询器</span>
+                </div>
+                <div class="function-icon" id="testIcon">
+                    <i class="fa fa-flask"></i>
+                    <span>给测试</span>
+                </div>
+                <div class="function-icon" id="reactionIcon">
+                    <i class="fa fa-bolt"></i>
+                    <span>反应测试</span>
+                </div>
+                <div class="function-icon" id="flashIcon">
+                    <i class="fa fa-bomb"></i>
+                    <span>闪光弹</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 78长度查询器界面 -->
+    <div id="lengthContainer" class="function-page-container hidden">
+        <button id="backFromLengthBtn" class="back-home-btn">
+            返回主页
+        </button>
+        
+        <!-- 标题区域 -->
+        <div class="text-center mb-8">
+            <h1 id="pageTitle" class="text-4xl md:text-5xl font-bold text-black mb-2 tracking-tight">78长度查询器</h1>
+            <div class="w-24 h-0.5 bg-black mx-auto my-4"></div>
+        </div>
+        
+        <!-- 输入区域 -->
+        <div class="mb-6 w-full max-w-md">
+            <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                <input 
+                    type="text" 
+                    id="nameInput" 
+                    placeholder="请输入你的名字" 
+                    class="flex-1 px-4 py-3 text-black bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                >
+                <button 
+                    id="queryBtn" 
+                    class="px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-300 flex items-center justify-center"
+                >
+                    <i class="fa fa-search mr-2"></i>
+                    <span id="buttonText">查询</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 结果显示区域 -->
+        <div class="w-full max-w-md text-center py-8 px-4 border-t border-b border-gray-200 mb-8">
+            <div id="resultText" class="text-xl md:text-2xl font-medium text-gray-500">
+                你的78长度为 <span class="font-bold text-black">--</span> (单位)
+            </div>
+            
+            <!-- 加载状态 (默认隐藏) -->
+            <div id="loadingText" class="text-xl md:text-2xl font-medium text-black hidden">
+                <span id="loadingMessage">正在模拟长度</span><span class="loading-dots"></span>
+            </div>
+            
+            <!-- 结果数字 (默认隐藏) -->
+            <div id="resultNumber" class="mt-4 text-3xl md:text-4xl font-bold text-black hidden">
+                <span id="lengthValue">0</span> <span id="lengthUnit">厘米</span>
+            </div>
+        </div>
+        
+        <!-- 底部说明 -->
+        <div class="text-center text-sm text-gray-500">
+            <p>内容转为虚构</p>
+        </div>
+    </div>
+    
+    <!-- 给测试界面 -->
+    <div id="testContainer" class="function-page-container hidden">
+        <button id="backFromTestBtn" class="back-home-btn">
+            返回主页
+        </button>
+        
+        <!-- 标题区域 -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-black mb-2 tracking-tight">给测试</h1>
+            <div class="w-24 h-0.5 bg-black mx-auto my-4"></div>
+        </div>
+        
+        <!-- 输入区域 -->
+        <div class="mb-6 w-full max-w-md">
+            <div class="flex items-center border border-gray-300 rounded-md overflow-hidden">
+                <input 
+                    type="text" 
+                    id="testNameInput" 
+                    placeholder="请输入你的名字" 
+                    class="flex-1 px-4 py-3 text-black bg-white focus:outline-none focus:ring-2 focus:ring-black"
+                >
+                <button 
+                    id="testQueryBtn" 
+                    class="px-6 py-3 bg-black text-white hover:bg-gray-800 transition-colors duration-300 flex items-center justify-center"
+                >
+                    <i class="fa fa-search mr-2"></i>
+                    <span>测试</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 结果显示区域 -->
+        <div class="w-full max-w-md text-center py-8 px-4 border-t border-b border-gray-200 mb-8">
+            <div id="testResultText" class="text-xl md:text-2xl font-medium text-gray-500">
+                测试结果将显示在这里 <span class="font-bold text-black">--</span>
+            </div>
+            
+            <!-- 加载状态 (默认隐藏) -->
+            <div id="testLoadingText" class="text-xl md:text-2xl font-medium text-black hidden">
+                <span>正在识别</span><span class="loading-dots"></span>
+            </div>
+        </div>
+        
+        <!-- 底部说明 -->
+        <div class="text-center text-sm text-gray-500">
+            <p>内容转为虚构</p>
+        </div>
+    </div>
+    
+    <!-- 反应测试界面 -->
+    <div id="reactionContainer" class="reaction-container hidden">
+        <button id="backFromReactionBtn" class="back-home-btn">
+            返回主页
+        </button>
+        <button id="reactionStartBtn" class="reaction-start-btn">
+            开始
+        </button>
+        <div id="reactionGameArea" class="reaction-game-area">
+            <div class="reaction-divider"></div>
+            <div id="reactionLeft" class="reaction-half reaction-left"></div>
+            <div id="reactionRight" class="reaction-half reaction-right"></div>
+            <div id="reactionResult" class="reaction-result"></div>
+        </div>
+    </div>
+    
+    <!-- 闪光弹模式选择界面 -->
+    <div id="modeSelection" class="mode-selection">
+        <div class="mode-buttons">
+            <div class="warning-text">
+                <i class="fa fa-warning mr-2"></i>
+                当心眼睛！
+            </div>
+            <button id="colorModeBtn" class="mode-button" style="background: linear-gradient(135deg, #ff0000, #00ff00, #0000ff, #ffff00, #000000, #800080, #ffffff);">
+                彩色模式
+            </button>
+            <button id="bwModeBtn" class="mode-button" style="background: linear-gradient(135deg, #000000, #ffffff);">
+                黑白模式
+            </button>
+            <button id="redModeBtn" class="mode-button" style="background: linear-gradient(135deg, #ff0000, #000000);">
+                红色模式
+            </button>
+            <button id="blueModeBtn" class="mode-button" style="background: linear-gradient(135deg, #0000ff, #ffffff);">
+                蓝色模式
+            </button>
+            <button id="randomModeBtn" class="mode-button" style="background: linear-gradient(135deg, #ffffff, #000000, #00ff00, #0000ff, #800080, #ffff00, #ff0000);">
+                随机模式
+            </button>
+            <button id="backFromModeBtn" class="back-home-btn" style="position: relative; margin-top: 2rem;">
+                返回主页
+            </button>
+        </div>
+    </div>
+    
+    <!-- 闪光弹全屏覆盖层 -->
+    <div id="flashOverlay" class="fullscreen-overlay">
+        <div id="countdownDisplay" class="countdown-text">3</div>
+    </div>
+
+    <script>
+        // 应用状态
+        let appMode = 'length'; // 'length' 或 'test'
+        let flashActive = false;
+        let currentFlashInterval = null;
+        let lastColor = null; // 用于随机模式记录上一个颜色
+        
+        // 反应测试状态
+        let reactionGameActive = false;
+        let reactionTimer = null;
+        let showTreasureBox = true; // 是否显示宝箱
+        
+        // 反应测试状态
+        let reactionGreenTime = 0; // 屏幕变绿的时间戳
+        let reactionClickTime = 0; // 点击屏幕的时间戳
+        let reactionGameStarted = false; // 游戏是否已经开始
+        let earlyClick = false; // 是否提前点击
+        
+        // 获取DOM元素
+        // 主页元素
+        const homeContainer = document.getElementById('homeContainer');
+        const homeGreeting = document.getElementById('homeGreeting');
+        const treasureBox = document.getElementById('treasureBox');
+        const functionIcons = document.getElementById('functionIcons');
+        const lengthIcon = document.getElementById('lengthIcon');
+        const testIcon = document.getElementById('testIcon');
+        const reactionIcon = document.getElementById('reactionIcon');
+        const flashIcon = document.getElementById('flashIcon');
+        
+        // 各功能容器
+        const lengthContainer = document.getElementById('lengthContainer');
+        const testContainer = document.getElementById('testContainer');
+        const reactionContainer = document.getElementById('reactionContainer');
+        const modeSelection = document.getElementById('modeSelection');
+        
+        // 返回按钮
+        const backFromLengthBtn = document.getElementById('backFromLengthBtn');
+        const backFromTestBtn = document.getElementById('backFromTestBtn');
+        const backFromReactionBtn = document.getElementById('backFromReactionBtn');
+        const backFromModeBtn = document.getElementById('backFromModeBtn');
+        
+        // 78长度查询器元素
+        const nameInput = document.getElementById('nameInput');
+        const queryBtn = document.getElementById('queryBtn');
+        const resultText = document.getElementById('resultText');
+        const loadingText = document.getElementById('loadingText');
+        const loadingMessage = document.getElementById('loadingMessage');
+        const resultNumber = document.getElementById('resultNumber');
+        const lengthValue = document.getElementById('lengthValue');
+        const lengthUnit = document.getElementById('lengthUnit');
+        const pageTitle = document.getElementById('pageTitle');
+        const buttonText = document.getElementById('buttonText');
+        
+        // 给测试元素
+        const testNameInput = document.getElementById('testNameInput');
+        const testQueryBtn = document.getElementById('testQueryBtn');
+        const testResultText = document.getElementById('testResultText');
+        const testLoadingText = document.getElementById('testLoadingText');
+        
+        // 闪光弹相关元素
+        const flashOverlay = document.getElementById('flashOverlay');
+        const countdownDisplay = document.getElementById('countdownDisplay');
+        const colorModeBtn = document.getElementById('colorModeBtn');
+        const bwModeBtn = document.getElementById('bwModeBtn');
+        const redModeBtn = document.getElementById('redModeBtn');
+        const blueModeBtn = document.getElementById('blueModeBtn');
+        const randomModeBtn = document.getElementById('randomModeBtn');
+        
+        // 反应测试相关元素
+        const reactionStartBtn = document.getElementById('reactionStartBtn');
+        const reactionGameArea = document.getElementById('reactionGameArea');
+        const reactionLeft = document.getElementById('reactionLeft');
+        const reactionRight = document.getElementById('reactionRight');
+        const reactionResult = document.getElementById('reactionResult');
+        
+        // 页面加载时设置问候语
+        window.addEventListener('load', function() {
+            setGreeting();
+            showHomePage();
+            
+            // 添加页面加载动画
+            gsap.fromTo(homeGreeting, 
+                { opacity: 0, y: -20 },
+                { opacity: 1, y: 0, duration: 0.8 }
+            );
+            
+            gsap.fromTo('.home-subtitle', 
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: 0.8, delay: 0.3 }
+            );
+            
+            gsap.fromTo(treasureBox, 
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1, duration: 0.8, delay: 0.6 }
+            );
+            
+            // 初始化所有事件监听器
+            initEventListeners();
+        });
+        
+        // 初始化所有事件监听器
+        function initEventListeners() {
+            // 宝箱点击事件
+            treasureBox.addEventListener('click', function() {
+                showTreasureBox = false;
+                treasureBox.style.display = 'none';
+                functionIcons.style.display = 'flex';
+                
+                // 添加功能图标动画
+                gsap.fromTo(functionIcons.children, 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }
+                );
+            });
+            
+            // 功能图标点击事件
+            lengthIcon.addEventListener('click', function() {
+                showLengthQuery();
+            });
+            
+            testIcon.addEventListener('click', function() {
+                showTest();
+            });
+            
+            reactionIcon.addEventListener('click', function() {
+                showReactionTest();
+            });
+            
+            flashIcon.addEventListener('click', function() {
+                showFlashModeSelection();
+            });
+            
+            // 返回按钮点击事件
+            backFromLengthBtn.addEventListener('click', function() {
+                showHomePage();
+            });
+            
+            backFromTestBtn.addEventListener('click', function() {
+                showHomePage();
+            });
+            
+            backFromReactionBtn.addEventListener('click', function() {
+                showHomePage();
+            });
+            
+            backFromModeBtn.addEventListener('click', function() {
+                showHomePage();
+            });
+            
+            // 78长度查询器功能
+            queryBtn.addEventListener('click', handleQuery);
+            
+            // 输入框回车事件
+            nameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleQuery();
+                }
+            });
+            
+            // 给测试功能
+            testQueryBtn.addEventListener('click', handleTestQuery);
+            
+            // 输入框回车事件
+            testNameInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleTestQuery();
+                }
+            });
+            
+            // 闪光弹功能
+            colorModeBtn.addEventListener('click', function() {
+                modeSelection.style.display = 'none';
+                startFlashEffect('color');
+            });
+            
+            bwModeBtn.addEventListener('click', function() {
+                modeSelection.style.display = 'none';
+                startFlashEffect('bw');
+            });
+            
+            redModeBtn.addEventListener('click', function() {
+                modeSelection.style.display = 'none';
+                startFlashEffect('red');
+            });
+            
+            blueModeBtn.addEventListener('click', function() {
+                modeSelection.style.display = 'none';
+                startFlashEffect('blue');
+            });
+            
+            randomModeBtn.addEventListener('click', function() {
+                modeSelection.style.display = 'none';
+                startFlashEffect('random');
+            });
+            
+            // 反应测试按钮事件
+            reactionStartBtn.addEventListener('click', function() {
+                startReactionTest();
+            });
+            
+            // 点击闪光覆盖层也可以停止效果
+            flashOverlay.addEventListener('click', function() {
+                if (flashActive) {
+                    stopFlashEffect();
+                }
+            });
+            
+            // 反应测试点击事件 - 在游戏开始时绑定
+            reactionLeft.addEventListener('click', function() {
+                handleReactionClick('left');
+            });
+            
+            reactionRight.addEventListener('click', function() {
+                handleReactionClick('right');
+            });
+        }
+        
+        // 设置问候语
+        function setGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = '';
+            
+            if (hour >= 5 && hour < 9) {
+                greeting = '早上';
+            } else if (hour >= 9 && hour < 12) {
+                greeting = '上午';
+            } else if (hour >= 12 && hour < 14) {
+                greeting = '中午';
+            } else if (hour >= 14 && hour < 18) {
+                greeting = '下午';
+            } else {
+                greeting = '晚上';
+            }
+            
+            homeGreeting.textContent = `${greeting}好，欢迎来到高玩工具箱`;
+        }
+        
+        // 显示主页
+        function showHomePage() {
+            // 隐藏所有功能界面
+            hideAllContainers();
+            
+            // 显示主页
+            homeContainer.classList.remove('hidden');
+            
+            // 如果宝箱未显示，则显示宝箱
+            if (showTreasureBox) {
+                treasureBox.style.display = 'block';
+                functionIcons.style.display = 'none';
+            } else {
+                treasureBox.style.display = 'none';
+                functionIcons.style.display = 'flex';
+                
+                // 添加功能图标动画
+                gsap.fromTo(functionIcons.children, 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.1 }
+                );
+            }
+            
+            // 更新问候语
+            setGreeting();
+        }
+        
+        // 隐藏所有容器
+        function hideAllContainers() {
+            homeContainer.classList.add('hidden');
+            lengthContainer.classList.add('hidden');
+            testContainer.classList.add('hidden');
+            reactionContainer.classList.add('hidden');
+            modeSelection.style.display = 'none';
+        }
+        
+        // 显示78长度查询器
+        function showLengthQuery() {
+            hideAllContainers();
+            lengthContainer.classList.remove('hidden');
+            
+            // 重置界面
+            resetResult();
+            nameInput.value = '';
+            pageTitle.textContent = '78长度查询器';
+            buttonText.textContent = '查询';
+            resultText.innerHTML = '你的78长度为 <span class="font-bold text-black">--</span> (单位)';
+            
+            // 添加动画效果
+            gsap.fromTo(lengthContainer, 
+                { opacity: 0 },
+                { opacity: 1, duration: 0.5 }
+            );
+            
+            // 聚焦输入框
+            nameInput.focus();
+        }
+        
+        // 显示给测试
+        function showTest() {
+            hideAllContainers();
+            testContainer.classList.remove('hidden');
+            
+            // 重置界面
+            testNameInput.value = '';
+            testResultText.innerHTML = '测试结果将显示在这里 <span class="font-bold text-black">--</span>';
+            testLoadingText.classList.add('hidden');
+            
+            // 添加动画效果
+            gsap.fromTo(testContainer, 
+                { opacity: 0 },
+                { opacity: 1, duration: 0.5 }
+            );
+            
+            // 聚焦输入框
+            testNameInput.focus();
+        }
+        
+        // 显示反应测试
+        function showReactionTest() {
+            hideAllContainers();
+            reactionContainer.classList.remove('hidden');
+            resetReactionGame();
+            
+            // 添加动画效果
+            gsap.fromTo(reactionContainer, 
+                { opacity: 0 },
+                { opacity: 1, duration: 0.5 }
+            );
+        }
+        
+        // 显示闪光弹模式选择
+        function showFlashModeSelection() {
+            hideAllContainers();
+            modeSelection.style.display = 'flex';
+            
+            // 添加动画效果
+            gsap.fromTo(modeSelection, 
+                { opacity: 0 },
+                { opacity: 1, duration: 0.5 }
+            );
+        }
+        
+        // 78长度查询器功能
+        
+        // 处理查询逻辑
+        function handleQuery() {
+            const name = nameInput.value.trim();
+            
+            // 验证输入
+            if (!name) {
+                alert('请输入你的名字');
+                return;
+            }
+            
+            // 重置状态
+            resetResult();
+            
+            // 显示加载状态
+            loadingMessage.textContent = '正在模拟长度';
+            showLoading();
+            
+            // 随机延迟 3-5秒
+            const delay = Math.floor(Math.random() * 2000) + 3000;
+            
+            // 模拟加载过程
+            setTimeout(() => {
+                generateLengthResult(name);
+            }, delay);
+        }
+        
+        // 重置结果显示
+        function resetResult() {
+            resultText.classList.remove('hidden');
+            loadingText.classList.add('hidden');
+            resultNumber.classList.add('hidden');
+            resultText.querySelector('span').textContent = '--';
+            lengthValue.classList.remove('special-number', 'number-animate');
+        }
+        
+        // 显示加载状态
+        function showLoading() {
+            resultText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            resultNumber.classList.add('hidden');
+            
+            // 添加加载动画效果
+            gsap.fromTo(loadingText, 
+                { opacity: 0, y: 10 },
+                { opacity: 1, y: 0, duration: 0.5 }
+            );
+        }
+        
+        // 生成长度测量结果
+        function generateLengthResult(name) {
+            let length, unit;
+            
+            // 检查是否为特殊名字
+            if (name === '顾一默') {
+                length = '9178';
+                unit = '米';
+                showSpecialResult(length, unit);
+            } else if (name === '严华') {
+                length = '78';
+                unit = '纳米';
+                showNormalResult(length, unit);
+            } else if (name === '曹洹瑞') {
+                length = '-999991';
+                unit = '光年';
+                showSpecialResult(length, unit);
+            } else if (name === '侯得屋') {
+                // 显示开发者信息
+                showDeveloperMessage();
+                return;
+	     } else if (name === '蒋辰栋') {
+		  // 显示开发者信息
+                showDeveloperMessage();
+                return;
+	     } else if (name === 'cc') {
+		  // 显示开发者信息
+                showDeveloperMessage();
+                return;
+	     } else if (name === 'wddjcs') {
+		  // 显示开发者信息
+                showDeveloperMessage();
+                return;
+	     } else if (name === '侯皓铭') {
+		  // 显示开发者信息
+                showDeveloperMessage();
+                return;
+            } else {
+                // 按概率生成1-91之间的随机数
+                const random = Math.random();
+                if (random < 0.8) {
+                    // 80%概率: 1-18
+                    length = Math.floor(Math.random() * 18) + 1;
+                } else if (random < 0.95) {
+                    // 15%概率: 19-70
+                    length = Math.floor(Math.random() * 52) + 19;
+                } else {
+                    // 5%概率: 71-91
+                    length = Math.floor(Math.random() * 21) + 71;
+                }
+                
+                unit = '厘米';
+                showNormalResult(length, unit);
+            }
+        }
+        
+        // 显示普通结果
+        function showNormalResult(length, unit) {
+            // 隐藏加载状态，显示结果
+            loadingText.classList.add('hidden');
+            resultNumber.classList.remove('hidden');
+            
+            // 更新结果文本
+            resultText.querySelector('span').textContent = `${length} ${unit}`;
+            
+            // 设置结果数字和单位
+            lengthValue.textContent = length;
+            lengthUnit.textContent = unit;
+            
+            // 添加数字增长动画
+            animateNumber(length);
+        }
+        
+        // 显示开发者特殊信息
+        function showDeveloperMessage() {
+            // 隐藏加载状态
+            loadingText.classList.add('hidden');
+            
+            // 更新结果文本
+            resultText.innerHTML = '<span class="font-bold text-black">这是开发者！</span>';
+            resultText.classList.remove('hidden');
+            
+            // 隐藏数字结果
+            resultNumber.classList.add('hidden');
+            
+            // 添加特殊动画效果
+            gsap.fromTo(resultText.querySelector('span'), 
+                { opacity: 0, scale: 0.8 },
+                { opacity: 1, scale: 1.2, duration: 0.5 }
+            );
+            
+            gsap.to(resultText.querySelector('span'), {
+                scale: 1,
+                duration: 0.3,
+                delay: 0.5
+            });
+            
+            // 添加颜色闪烁效果
+            gsap.to(resultText.querySelector('span'), {
+                color: '#ff0000',
+                duration: 0.3,
+                yoyo: true,
+                repeat: 5,
+                delay: 0.8
+            });
+        }
+        
+        // 显示特殊结果
+        function showSpecialResult(length, unit) {
+            // 隐藏加载状态，显示结果
+            loadingText.classList.add('hidden');
+            resultNumber.classList.remove('hidden');
+            
+            // 更新结果文本
+            resultText.innerHTML = '你的78长达惊人的 <span class="font-bold text-black">--</span>';
+            resultText.querySelector('span').textContent = `${length} ${unit}`;
+            
+            // 设置结果数字和单位
+            lengthValue.textContent = length;
+            lengthUnit.textContent = unit;
+            
+            // 添加特殊数字动画
+            lengthValue.classList.add('special-number');
+            
+            // 添加强调效果
+            gsap.to(resultNumber, {
+                scale: 1.1,
+                duration: 0.3,
+                yoyo: true,
+                repeat: 2
+            });
+            
+            // 添加颜色闪烁效果
+            gsap.to(resultNumber, {
+                color: '#ff0000',
+                duration: 0.5,
+                yoyo: true,
+                repeat: 3,
+                onComplete: () => {
+                    gsap.to(resultNumber, { color: '#000000', duration: 0.3 });
+                }
+            });
+        }
+        
+        // 数字增长动画
+        function animateNumber(targetNumber) {
+            lengthValue.classList.add('number-animate');
+            
+            // 使用GSAP实现数字滚动效果
+            gsap.fromTo(lengthValue, 
+                { innerText: 0 },
+                { 
+                    innerText: targetNumber,
+                    duration: 1,
+                    ease: "power1.out",
+                    snap: { innerText: 1 }
+                }
+            );
+        }
+        
+        // 给测试功能
+        
+        // 处理测试查询逻辑
+        function handleTestQuery() {
+            const name = testNameInput.value.trim();
+            
+            // 验证输入
+            if (!name) {
+                alert('请输入你的名字');
+                return;
+            }
+            
+            // 显示加载状态
+            testResultText.classList.add('hidden');
+            testLoadingText.classList.remove('hidden');
+            
+            // 随机延迟 2-3秒
+            const delay = Math.floor(Math.random() * 1000) + 2000;
+            
+            // 模拟加载过程
+            setTimeout(() => {
+                generateTestResult(name);
+            }, delay);
+        }
+        
+        // 生成测试结果
+        function generateTestResult(name) {
+            let result;
+            
+            // 特殊名字处理
+            if (name === '侯得屋') {
+                result = '这是开发者！';
+            }else if (name === '侯皓铭') {
+                result = '这是开发者！';
+            }else if (name === '蒋辰栋') {
+                result = '这是发布者！';
+            } else if (name === '顾一默') {
+                result = '这个真是给';
+            } else if (name === '严华') {
+                result = '身体还好吗';
+            } else if (name === '曹洹瑞') {
+                result = '喜欢上门服务。。。';
+            } else {
+                // 随机显示两个结果之一
+                result = Math.random() > 0.5 ? '你是给' : '你应该是给';
+            }
+            
+            // 显示测试结果
+            testLoadingText.classList.add('hidden');
+            testResultText.classList.remove('hidden');
+            testResultText.querySelector('span').textContent = result;
+            
+            // 添加结果动画
+            gsap.fromTo(testResultText.querySelector('span'), 
+                { opacity: 0, scale: 0.9 },
+                { opacity: 1, scale: 1, duration: 0.5 }
+            );
+        }
+        
+        // 反应测试功能
+        
+        // 重置反应游戏
+        function resetReactionGame() {
+            reactionGameActive = false;
+            reactionGameStarted = false;
+            earlyClick = false;
+            
+            // 显示开始按钮，隐藏游戏区域
+            reactionStartBtn.style.display = 'block';
+            reactionGameArea.style.display = 'none';
+            reactionResult.style.display = 'none';
+            
+            // 确保容器背景为白色
+            reactionContainer.style.backgroundColor = 'white';
+            
+            // 重置颜色
+            reactionLeft.style.backgroundColor = '';
+            reactionRight.style.backgroundColor = '';
+            reactionGameArea.style.backgroundColor = 'white';
+            
+            // 清除定时器
+            if (reactionTimer) {
+                clearTimeout(reactionTimer);
+                reactionTimer = null;
+            }
+        }
+        
+        // 开始反应测试
+        function startReactionTest() {
+            // 重置游戏状态
+            reactionGameActive = true;
+            reactionGameStarted = true;
+            earlyClick = false;
+            reactionGreenTime = 0;
+            reactionClickTime = 0;
+            
+            // 隐藏开始按钮，显示游戏区域
+            reactionStartBtn.style.display = 'none';
+            reactionGameArea.style.display = 'block';
+            reactionResult.style.display = 'none';
+            
+            // 初始状态：红色屏幕
+            reactionLeft.style.backgroundColor = '#ff0000';
+            reactionRight.style.backgroundColor = '#ff0000';
+            reactionGameArea.style.backgroundColor = '#ff0000';
+            
+            // 清除之前的定时器
+            if (reactionTimer) {
+                clearTimeout(reactionTimer);
+                reactionTimer = null;
+            }
+            
+            // 随机时间后变为绿色 (3-7秒)
+            const randomTime = Math.floor(Math.random() * 4000) + 3000; // 3-7秒
+            reactionTimer = setTimeout(() => {
+                if (reactionGameActive && !earlyClick) {
+                    // 记录变绿时间
+                    reactionGreenTime = Date.now();
+                    
+                    // 变为绿色
+                    reactionLeft.style.backgroundColor = '#00ff00';
+                    reactionRight.style.backgroundColor = '#00ff00';
+                    reactionGameArea.style.backgroundColor = '#00ff00';
+                }
+            }, randomTime);
+        }
+        
+        // 处理反应点击
+        function handleReactionClick(side) {
+            // 如果游戏没有激活，直接返回
+            if (!reactionGameActive) return;
+            
+            // 如果在屏幕变绿前点击（提前点击）
+            if (reactionGreenTime === 0) {
+                earlyClick = true;
+                reactionGameActive = false;
+                
+                // 确定哪一边提前点击了
+                const clickedSide = side;
+                const winnerSide = clickedSide === 'left' ? 'right' : 'left';
+                
+                // 屏幕变蓝
+                reactionLeft.style.backgroundColor = '#0000ff';
+                reactionRight.style.backgroundColor = '#0000ff';
+                reactionGameArea.style.backgroundColor = '#0000ff';
+                
+                // 显示游戏结束
+                reactionResult.textContent = '游戏结束';
+                reactionResult.style.display = 'block';
+                
+                // 0.5秒后显示获胜方
+                setTimeout(() => {
+                    reactionResult.textContent = `${winnerSide === 'left' ? '左' : '右'}边获胜\n（${clickedSide === 'left' ? '左' : '右'}边提前点击）`;
+                    
+                    // 2秒后重置游戏
+                    setTimeout(() => {
+                        resetReactionGame();
+                    }, 2000);
+                }, 500);
+            } 
+            // 如果在屏幕变绿后点击（正常游戏）
+            else {
+                // 记录点击时间
+                reactionClickTime = Date.now();
+                
+                // 计算反应时间（毫秒）
+                const reactionTime = reactionClickTime - reactionGreenTime;
+                
+                // 停止游戏
+                reactionGameActive = false;
+                
+                // 屏幕变蓝
+                reactionLeft.style.backgroundColor = '#0000ff';
+                reactionRight.style.backgroundColor = '#0000ff';
+                reactionGameArea.style.backgroundColor = '#0000ff';
+                
+                // 显示游戏结束
+                reactionResult.textContent = '游戏结束';
+                reactionResult.style.display = 'block';
+                
+                // 0.5秒后显示结果
+                setTimeout(() => {
+                    reactionResult.textContent = `${side === 'left' ? '左' : '右'}边获胜\n反应时间：${reactionTime}毫秒`;
+                    
+                    // 2秒后重置游戏
+                    setTimeout(() => {
+                        resetReactionGame();
+                    }, 2000);
+                }, 500);
+            }
+        }
+        
+        // 闪光弹功能
+        
+        // 开始闪光效果
+        function startFlashEffect(mode) {
+            if (flashActive) return;
+            flashActive = true;
+            
+            // 重置上一个颜色记录
+            lastColor = null;
+            
+            // 显示全屏覆盖层
+            flashOverlay.style.display = 'flex';
+            flashOverlay.style.backgroundColor = '#ffffff';
+            countdownDisplay.textContent = '3';
+            countdownDisplay.style.color = '#000000';
+            
+            // 倒计时
+            let countdown = 3;
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                countdownDisplay.textContent = countdown;
+                
+                if (countdown === 0) {
+                    clearInterval(countdownInterval);
+                    countdownDisplay.textContent = '开始！';
+                    
+                    // 延迟后开始闪光效果
+                    setTimeout(() => {
+                        countdownDisplay.style.display = 'none';
+                        startModeEffect(mode);
+                    }, 500);
+                }
+            }, 1000);
+        }
+        
+        // 开始特定模式的闪光效果
+        function startModeEffect(mode) {
+            let colors = [];
+            let interval = 100; // 0.1秒切换（其他模式）
+            
+            // 根据模式设置颜色数组
+            switch(mode) {
+                case 'color':
+                    colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#000000', '#800080', '#ffffff'];
+                    break;
+                case 'bw':
+                    colors = ['#000000', '#ffffff'];
+                    break;
+                case 'red':
+                    colors = ['#ff0000', '#000000'];
+                    break;
+                case 'blue':
+                    colors = ['#0000ff', '#ffffff'];
+                    break;
+                case 'random':
+                    // 随机模式使用特定的颜色数组
+                    colors = ['#ffffff', '#000000', '#00ff00', '#0000ff', '#800080', '#ffff00', '#ff0000'];
+                    break;
+            }
+            
+            let colorIndex = 0;
+            
+            // 清除之前的闪烁效果
+            if (currentFlashInterval) {
+                if (typeof currentFlashInterval === 'number') {
+                    // 对于随机模式的timeout
+                    clearTimeout(currentFlashInterval);
+                } else {
+                    // 对于其他模式的interval
+                    clearInterval(currentFlashInterval);
+                }
+                currentFlashInterval = null;
+            }
+            
+            // 设置颜色切换
+            if (mode === 'random') {
+                // 随机模式：随机切换颜色，不与上一个重复，随机间隔0.1-0.3秒
+                const changeColor = () => {
+                    // 过滤掉上一个颜色
+                    const availableColors = colors.filter(color => color !== lastColor);
+                    
+                    // 随机选择一个颜色
+                    const randomIndex = Math.floor(Math.random() * availableColors.length);
+                    const newColor = availableColors[randomIndex];
+                    
+                    // 应用新颜色
+                    flashOverlay.style.backgroundColor = newColor;
+                    
+                    // 记录上一个颜色
+                    lastColor = newColor;
+                    
+                    // 随机间隔0.1-0.3秒 (100-300毫秒)
+                    const randomInterval = Math.floor(Math.random() * 200) + 100; // 100-300毫秒
+                    
+                    // 设置下一个颜色切换
+                    currentFlashInterval = setTimeout(changeColor, randomInterval);
+                };
+                
+                // 开始第一次颜色切换
+                changeColor();
+            } else {
+                // 其他模式：固定顺序，0.1秒切换
+                currentFlashInterval = setInterval(() => {
+                    flashOverlay.style.backgroundColor = colors[colorIndex];
+                    colorIndex = (colorIndex + 1) % colors.length;
+                }, interval);
+            }
+        }
+        
+        // 停止闪光效果
+        function stopFlashEffect() {
+            if (currentFlashInterval) {
+                if (typeof currentFlashInterval === 'number') {
+                    // 对于随机模式的timeout
+                    clearTimeout(currentFlashInterval);
+                } else {
+                    // 对于其他模式的interval
+                    clearInterval(currentFlashInterval);
+                }
+                currentFlashInterval = null;
+            }
+            
+            // 快速淡出效果
+            gsap.to(flashOverlay, {
+                opacity: 0,
+                duration: 0.3,
+                onComplete: () => {
+                    flashOverlay.style.display = 'none';
+                    flashOverlay.style.opacity = 1;
+                    countdownDisplay.style.display = 'block';
+                    countdownDisplay.textContent = '3';
+                    flashActive = false;
+                    showHomePage(); // 返回主页
+                }
+            });
+        }
+    </script>
+</body>
+</html>
